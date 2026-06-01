@@ -1,0 +1,28 @@
+body {
+    font-family: Arial;
+}
+
+.hero {
+    padding: 120px;
+    background: linear-gradient(to right, #007bff, #6610f2);
+}
+
+.hero h1 {
+    font-size: 50px;
+    font-weight: bold;
+}
+
+.card {
+    transition: 0.3s;
+}
+
+.card:hover {
+    transform: translateY(-10px);
+}
+
+.carousel-caption {
+    background: rgba(0, 0, 0, 0.5);
+    padding: 10px;
+    border-radius: 5px;
+}
+

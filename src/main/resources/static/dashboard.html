@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Burnout Detection System</title>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" />
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+
+	<script>
+	    // Verify active authentication token on page initialization
+	    if(localStorage.getItem("userEmail") === null) {
+	        alert("ACCESS DENIED: Please log in to your account to view this resource! ❌");
+	        window.location.href = "login.html";
+	    }
+	</script>
+	
+    <style>
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: linear-gradient(135deg, #eef2ff, #dbeafe);
+            font-family: 'Poppins', sans-serif;
+        }
+
+        /* Main content */
+        .main-container {
+            flex: 1;
+            padding: 60px 20px;
+        }
+
+        h2 {
+            text-align: center;
+            font-weight: 600;
+            margin-bottom: 50px;
+        }
+
+        /* Navbar */
+        .navbar {
+            padding: 15px 0;
+        }
+
+        .navbar-brand {
+            font-size: 22px;
+        }
+
+        /* Cards */
+        .card {
+            border-radius: 20px;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+            background: linear-gradient(135deg, #6a11cb, #2575fc);
+            color: white;
+            padding: 40px 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+            height: 100%;
+        }
+
+        .card:hover {
+            transform: translateY(-12px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+
+        /* Icons */
+        .card i {
+            font-size: 50px;
+            margin-bottom: 15px;
+        }
+
+        /* Buttons */
+        .card .btn {
+            width: 80%;
+            border-radius: 50px;
+            font-weight: 600;
+            padding: 10px;
+        }
+
+        .btn-primary {
+            background: #ffd54f;
+            color: #000;
+            border: none;
+        }
+
+        .btn-primary:hover {
+            background: #ffc107;
+        }
+
+        .btn-info {
+            background: #00bcd4;
+            border: none;
+            color: white;
+        }
+
+        .btn-info:hover {
+            background: #0097a7;
+        }
+
+        .btn-danger {
+            background: #e53935;
+            border: none;
+        }
+
+        .btn-danger:hover {
+            background: #b71c1c;
+        }
+
+        /* Footer */
+        .footer-section {
+            background: #111;
+            color: white;
+            text-align: center;
+            padding: 15px;
+        }
+
+        .footer-section a {
+            color: #fda085;
+            text-decoration: none;
+        }
+
+        .footer-section a:hover {
+            color: #f6d365;
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="#">Burnout System</a>
+            <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#menu">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="menu">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="index.html">Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="login.html">Login</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="register.html">Register</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="result.html">Result</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="dashboard.html">Dashboard</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container main-container">
+        <h2>Welcome User</h2>
+
+        <div class="row g-4 justify-content-center text-center">
+
+            <div class="col-md-4">
+                <div class="card">
+                    <i class="fa fa-vial"></i>
+                    <h4>Start Test</h4>
+                    <a href="assessment.html" class="btn btn-primary mt-3">Take Assessment</a>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card">
+                    <i class="fa fa-user"></i>
+                    <h4>Profile</h4>
+                    <a href="profile.html" class="btn btn-info mt-3">View Profile</a>
+                </div>
+            </div>
+
+            <div class="col-md-4">
+                <div class="card">
+                    <i class="fa fa-sign-out-alt"></i>
+                    <h4>Logout</h4>
+                    <button class="btn btn-danger mt-3" onclick="logout()">Logout</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <footer class="footer-section">
+        <p>&copy; 2026 Burnout Detection System | All Rights Reserved</p>
+        <p>Developed by: <strong>Ajeet Singh</strong></p>
+        <p>
+            Email: <a href="mailto:ajeetsingh01@gmail.com">ajeetsingh01@gmail.com</a> |
+            Contact: <a href="tel:+911234567890">+91 1234567890</a>
+        </p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+	<script>
+        // Session Termination Execution Pipeline
+	    function logout() {
+	        const email = localStorage.getItem("userEmail");
+	        
+	        // Dispatch API request to clear server-side cache/session mapping
+	        fetch(`http://localhost:8080/api/user/logout?email=${email}`, { method: "POST" })
+	        .then(res => res.text())
+	        .then(result => {
+	            // Purge local persistent browser authorization keys
+	            localStorage.removeItem("userEmail");
+	            alert(result); // Renders the formal backend transmission string response
+	            window.location.href = "login.html";
+	        });
+	    }
+	</script>
+
+</body>
+</html>
