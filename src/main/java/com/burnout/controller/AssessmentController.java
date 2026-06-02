@@ -88,14 +88,19 @@ public class AssessmentController {
     }
 
     // Retrieve the aggregated total count of assessments taken by a specific user profile
+ // Retrieve the aggregated total count of assessments taken by a specific user profile
     @GetMapping("/count")
     public ResponseEntity<Long> getAssessmentCount(@RequestParam String email) {
         Optional<User> userOptional = userRepo.findByEmail(email);
         if (!userOptional.isPresent()) {
             return ResponseEntity.ok(0L);
         }
-        long count = assessmentService.getAssessmentCountByUser(userOptional.get().getId());
-        return ResponseEntity.ok(count); // Clean primitive back to wrapper autoboxing
+        
+        // 🔥 FIXED: Long ID ko intValue() me convert kiya taaki service layer se match ho sake
+        int userId = userOptional.get().getId().intValue(); 
+        
+        long count = assessmentService.getAssessmentCountByUser(userId);
+        return ResponseEntity.ok(count);
     }
 
     // Dynamic Fetch handler from coping_strategies table
