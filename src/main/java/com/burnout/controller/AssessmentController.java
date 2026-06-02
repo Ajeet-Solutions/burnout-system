@@ -33,7 +33,7 @@ public class AssessmentController {
     @Autowired
     private EmailService emailService; 
 
-    //Fetch and return the complete list of assessment questions
+    // Fetch and return the complete list of assessment questions
     @GetMapping("/questions")
     public ResponseEntity<List<Question>> getAllQuestions() {
         List<Question> questions = questionRepo.findAll();
@@ -41,7 +41,6 @@ public class AssessmentController {
     }
 
     // Submit assessment data, persist records, and trigger automated rich email reports
-    //Original parameters kept: @requestParam("email") is not touched so that your frontend hook is safe
     @PostMapping("/submit")
     public ResponseEntity<String> submitTest(@RequestParam("email") String email, @RequestBody Assessment assessment) {
         
@@ -61,14 +60,26 @@ public class AssessmentController {
         System.out.println("Triggering Rich Email Engine for: " + user.getEmail());
 
         try {
-            //Updated pipeline Passed all dynamic data to the new rich design of the email service
+            // 1. Convert Age safely (Handles primitive int or Long wrappers safely)
+            int userAge = 0;
+            if (user.getAge() != null) {
+                userAge = user.getAge().intValue();
+            }
+
+            // 2. Convert TotalScore safely from Long to primitive int
+            int finalScore = 0;
+            if (savedAssessment != null && savedAssessment.getTotalScore() != null) {
+                finalScore = savedAssessment.getTotalScore().intValue(); // 🔥 FIXED: Wrapper conversion
+            }
+
+            // Updated pipeline Passed all dynamic data to the new rich design of the email service
             emailService.sendBurnoutReport(
                 user.getEmail(), 
                 user.getName(), 
-                user.getProfession(), // Profession mapped from User entity
-                user.getAge(),        // Age mapped from User entity
+                user.getProfession(), 
+                userAge,              
                 savedAssessment.getResultStatus(), 
-                savedAssessment.getTotalScore()    
+                finalScore    // 🔥 FIXED: Pass primitive int to match EmailService signature
             );
             System.out.println("Rich HTML Email successfully pushed to mail server queue for: " + user.getEmail());
         } catch (Exception e) {
@@ -78,7 +89,7 @@ public class AssessmentController {
         return ResponseEntity.ok("Success: Your assessment has been saved successfully.");
     }
 
-    //Fetch the most recent assessment score for the result rendering dashboard
+    // Fetch the most recent assessment score for the result rendering dashboard
     @GetMapping("/latest")
     public ResponseEntity<Assessment> getLatestAssessment(@RequestParam String email) {
         Assessment latest = assessmentService.getLatestAssessment(email);
@@ -93,10 +104,10 @@ public class AssessmentController {
     public ResponseEntity<Long> getAssessmentCount(@RequestParam String email) {
         Optional<User> userOptional = userRepo.findByEmail(email);
         if (!userOptional.isPresent()) {
-            return ResponseEntity.ok(0L);
+            return ResponseEntity.ok(Long.valueOf(0L));
         }
         long count = assessmentService.getAssessmentCountByUser(userOptional.get().getId());
-        return ResponseEntity.ok(count);
+        return ResponseEntity.ok(Long.valueOf(count));
     }
 
     // Dynamic Fetch handler from coping_strategies table
