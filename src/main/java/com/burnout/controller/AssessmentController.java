@@ -60,26 +60,14 @@ public class AssessmentController {
         System.out.println("Triggering Rich Email Engine for: " + user.getEmail());
 
         try {
-            // 1. Convert Age safely (Handles primitive int or Long wrappers safely)
-            int userAge = 0;
-            if (user.getAge() != null) {
-                userAge = user.getAge().intValue();
-            }
-
-            // 2. Convert TotalScore safely from Long to primitive int
-            int finalScore = 0;
-            if (savedAssessment != null && savedAssessment.getTotalScore() != null) {
-                finalScore = savedAssessment.getTotalScore().intValue(); // 🔥 FIXED: Wrapper conversion
-            }
-
-            // Updated pipeline Passed all dynamic data to the new rich design of the email service
+            // Sahi primitive types direct pass ho rahe hain bina kisi extra conversion ke
             emailService.sendBurnoutReport(
                 user.getEmail(), 
                 user.getName(), 
                 user.getProfession(), 
-                userAge,              
+                user.getAge(),              
                 savedAssessment.getResultStatus(), 
-                finalScore    // 🔥 FIXED: Pass primitive int to match EmailService signature
+                savedAssessment.getTotalScore()    
             );
             System.out.println("Rich HTML Email successfully pushed to mail server queue for: " + user.getEmail());
         } catch (Exception e) {
@@ -104,10 +92,10 @@ public class AssessmentController {
     public ResponseEntity<Long> getAssessmentCount(@RequestParam String email) {
         Optional<User> userOptional = userRepo.findByEmail(email);
         if (!userOptional.isPresent()) {
-            return ResponseEntity.ok(Long.valueOf(0L));
+            return ResponseEntity.ok(0L);
         }
         long count = assessmentService.getAssessmentCountByUser(userOptional.get().getId());
-        return ResponseEntity.ok(Long.valueOf(count));
+        return ResponseEntity.ok(count); // Clean primitive back to wrapper autoboxing
     }
 
     // Dynamic Fetch handler from coping_strategies table
