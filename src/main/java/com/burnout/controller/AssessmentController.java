@@ -8,9 +8,13 @@ import com.burnout.repository.UserRepository;
 import com.burnout.repository.QuestionRepository; 
 import com.burnout.service.AssessmentService;
 import com.burnout.service.EmailService; 
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+// 🔥 FIXED: Spring Boot 3.x ke liye standard packages ensure kiye gye hain
+import jakarta.servlet.http.HttpServletRequest; 
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List; 
@@ -60,7 +64,7 @@ public class AssessmentController {
         System.out.println("Triggering Rich Email Engine for: " + user.getEmail());
 
         try {
-            // Sahi primitive types direct pass ho rahe hain bina kisi extra conversion ke
+            // Sahi types direct pass ho rahe hain bina kisi mismatch ke
             emailService.sendBurnoutReport(
                 user.getEmail(), 
                 user.getName(), 
@@ -96,10 +100,16 @@ public class AssessmentController {
             return ResponseEntity.ok(0L);
         }
         
-        // 🔥 FIXED: Long ID ko intValue() me convert kiya taaki service layer se match ho sake
-        int userId = userOptional.get().getId().intValue(); 
+        User user = userOptional.get();
+        if (user.getId() == null) {
+            return ResponseEntity.ok(0L);
+        }
+
+        // 🔥 FIX: Agar aapki service 'int' maangti hai, toh .intValue() pass karo
+        // 🔥 Agar 'long' (primitive) maangti hai, toh .longValue() pass karo
+        // Hum yahan primitive value nikaal kar bhej rahe hain taaki mismatch khatam ho jaye
+        long count = assessmentService.getAssessmentCountByUser(user.getId().intValue());
         
-        long count = assessmentService.getAssessmentCountByUser(userId);
         return ResponseEntity.ok(count);
     }
 
