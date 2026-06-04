@@ -120,8 +120,8 @@
             profession: document.getElementById("regProfession").value
         };
 
-        // FIXED Sending data as JSON string in the Body container to satisfy @RequestBody
-        fetch(`http://localhost:8080/api/user/register`, {
+        // FIXED: Changed localhost to Render Live URL
+        fetch(`https://burnout-system-iwyd.onrender.com/api/user/register`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
