@@ -211,7 +211,7 @@
 	        //explicitly constructing URLSearchParams for bulletproof query transmission
 	        const queryParams = new URLSearchParams({ email: email });
 
-	        fetch(`http://localhost:8080/api/assessment/submit?${queryParams.toString()}`, {
+	        fetch(`https://burnout-system-iwyd.onrender.com/api/assessment/submit?${queryParams.toString()}`, {
 	            method: "POST",
 	            headers: {
 	                "Content-Type": "application/json",
