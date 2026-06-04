@@ -126,24 +126,22 @@
         const email = document.getElementById("loginEmail").value.trim();
         const password = document.getElementById("loginPassword").value;
 
-        fetch(`http://localhost:8080/api/user/login?email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`, {
+        // BINDING CHANGE: Localhost link ko hatakar Render live URL se replace kar diya hai
+        fetch(`https://burnout-system-iwyd.onrender.com/api/user/login?email=${encodeURIComponent(email)}&password=${encodeURIComponent(password)}`, {
             method: 'POST'
         })
         .then(res => res.text())
         .then(result => {
             const resClean = result.trim().toUpperCase();
             
-            // If the Xact returns "success" or the session returns "active", both will be treated as valid.
             if(resClean.includes("SUCCESS") || resClean.includes("ACTIVE") || result.toLowerCase().includes("session")) {
-                
-                // Keys are required to be stored for dashboards and assessment templates
                 localStorage.setItem("userEmail", email);
                 localStorage.setItem("email", email);
                 
                 alert("Login Successful! ✅");
                 window.location.href = "assessment.html"; 
             } else {
-                alert(result); // Will show error alert on incorrect password
+                alert(result);
             }
         })
         .catch(err => {

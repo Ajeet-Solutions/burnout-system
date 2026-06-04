@@ -193,7 +193,7 @@
         }
 
         //Fetch User Profile basic attributes (Name, Email, Age, Profession)
-        fetch(`http://localhost:8080/api/user/details?email=${encodeURIComponent(email)}`)
+        fetch(`https://burnout-system-iwyd.onrender.com/api/user/details?email=${encodeURIComponent(email)}`)
         .then(response => {
             if (!response.ok) {
                 throw new Error("HTTP connection failure during resource pull.");
