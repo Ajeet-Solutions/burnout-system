@@ -44,41 +44,19 @@ public class AssessmentController {
         return ResponseEntity.ok(questions);
     }
 
-    // Submit assessment data, persist records, and trigger automated rich email reports
     @PostMapping("/submit")
     public ResponseEntity<String> submitTest(@RequestParam("email") String email, @RequestBody Assessment assessment) {
-        
-        System.out.println("Incoming submission request for email: " + email);
-        
-        Optional<User> userOptional = userRepo.findByEmail(email);
-        if (!userOptional.isPresent()) {
-            return ResponseEntity.badRequest().body("Error: User profile not found! Please log in first.");
-        }
-
-        User user = userOptional.get();
-        assessment.setUser(user);
-        
-        // Service layer computes total score and saves record safely
-        Assessment savedAssessment = assessmentService.saveAssessment(assessment);
-
-        System.out.println("Triggering Rich Email Engine for: " + user.getEmail());
-
         try {
-            // Sahi types direct pass ho rahe hain bina kisi mismatch ke
-            emailService.sendBurnoutReport(
-                user.getEmail(), 
-                user.getName(), 
-                user.getProfession(), 
-                user.getAge(),              
-                savedAssessment.getResultStatus(), 
-                savedAssessment.getTotalScore()    
-            );
-            System.out.println("Rich HTML Email successfully pushed to mail server queue for: " + user.getEmail());
+            Optional<User> userOptional = userRepo.findByEmail(email);
+            if (userOptional.isEmpty()) return ResponseEntity.badRequest().body("Error: User not found.");
+            
+            assessment.setUser(userOptional.get());
+            assessmentService.saveAssessment(assessment);
+            return ResponseEntity.ok("Success: Data saved.");
         } catch (Exception e) {
-            System.out.println("Email processing failed but data saved: " + e.getMessage());
+            e.printStackTrace(); // Yeh Render ke logs mein error print karega
+            return ResponseEntity.internalServerError().body("DB_ERROR: " + e.getMessage());
         }
-
-        return ResponseEntity.ok("Success: Your assessment has been saved successfully.");
     }
 
     // Fetch the most recent assessment score for the result rendering dashboard
@@ -91,7 +69,7 @@ public class AssessmentController {
         return ResponseEntity.notFound().build();
     }
 
-    // Retrieve the aggregated total count of assessments taken by a specific user profile
+  
  // Retrieve the aggregated total count of assessments taken by a specific user profile
     @GetMapping("/count")
     public ResponseEntity<Long> getAssessmentCount(@RequestParam String email) {
