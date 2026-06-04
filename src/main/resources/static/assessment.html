@@ -119,7 +119,7 @@
 
 	    // Fetch dynamic questions from database
 	    document.addEventListener("DOMContentLoaded", function() {
-	        fetch("http://localhost:8080/api/assessment/questions")
+	        fetch("https://burnout-system-iwyd.onrender.com/api/assessment/questions")
 	        .then(res => {
 	            if(!res.ok) throw new Error("Server error");
 	            return res.json();
