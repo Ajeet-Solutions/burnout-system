@@ -208,7 +208,7 @@
 	        const email = localStorage.getItem("userEmail");
 	        
 	        // Dispatch API request to clear server-side cache/session mapping
-	        fetch(`http://localhost:8080/api/user/logout?email=${email}`, { method: "POST" })
+	        fetch(`https://burnout-system-iwyd.onrender.com/api/user/logout?email=${email}`, { method: "POST" })
 	        .then(res => res.text())
 	        .then(result => {
 	            // Purge local persistent browser authorization keys

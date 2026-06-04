@@ -193,7 +193,7 @@
 
               // DATABASE DYNAMIC FETCH - Fetching from coping_strategies table
               // We are sending the same status to the backend as is saved in the database (e.g., 'high risk')
-              return fetch(`http://localhost:8080/api/assessment/strategies?level=${encodeURIComponent(status)}`);
+              return fetch(`https://burnout-system-iwyd.onrender.com/api/assessment/strategies?level=${encodeURIComponent(status)}`);
           })
           .then(res => {
               if (!res.ok) throw new Error("Coping strategies data not found.");
