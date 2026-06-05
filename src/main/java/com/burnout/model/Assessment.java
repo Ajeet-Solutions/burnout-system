@@ -1,5 +1,6 @@
 package com.burnout.model;
 
+import jakarta.persistence.Column; 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -21,17 +22,29 @@ public class Assessment {
     @JoinColumn(name = "user_id")
     private User user;
 
+    //DATABASE MAPPING
+    @Column(name = "q1_score")
     private int q1Score;
+
+    @Column(name = "q2_score")
     private int q2Score;
+
+    @Column(name = "q3_score")
     private int q3Score;
+
+    @Column(name = "total_score")
     private int totalScore;
+
+    @Column(name = "result_status")
     private String resultStatus;
+
+    @Column(name = "assessment_date")
     private LocalDateTime assessmentDate = LocalDateTime.now();
 
     // Default Constructor for JPA reflection mechanisms
     public Assessment() {}
 
-    // Encapsulation Accessors (Getters and Setters) to maintain data security and mutations
+    // Encapsulation Accessors (Getters and Setters)
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
 
