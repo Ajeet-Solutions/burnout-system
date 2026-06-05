@@ -173,8 +173,9 @@
 	        }
 
 	        let total = 0;
-	        // Dynamically mapping scores directly up to 6 parameters safety checklist
-	        let scores = { q1Score: 0, q2Score: 0, q3Score: 0, q4Score: 0, q5Score: 0, q6Score: 0 };
+	        
+	     
+	        let scores = { q1Score: 0, q2Score: 0, q3Score: 0 };
 
 	        for (let i = 1; i <= globalQuestionsCount; i++) {
 	            const element = document.getElementById(`q${i}`);
@@ -183,8 +184,8 @@
 	                const elementScore = getScore(val);
 	                total += elementScore;
 	                
-	                // Map strictly to dynamic indices
-	                if (i <= 6) {
+	                
+	                if (i <= 3) {
 	                    scores[`q${i}Score`] = elementScore;
 	                }
 	            }
@@ -204,11 +205,9 @@
 
 	        console.log("Sending Data to Backend Pipeline:", assessmentData);
 
-	        // Local storage backup values ​​safe trigger
 	        localStorage.setItem("latestScore", total);
 	        localStorage.setItem("latestStatus", statusText);
 
-	        //explicitly constructing URLSearchParams for bulletproof query transmission
 	        const queryParams = new URLSearchParams({ email: email });
 
 	        fetch(`https://burnout-system-iwyd.onrender.com/api/assessment/submit?${queryParams.toString()}`, {
@@ -221,7 +220,6 @@
 	        })
 	        .then(response => {
 	            if(!response.ok) throw new Error("Data stream reject.");
-	            // The page will change only when the database response is successful!
 	            window.location.href = "result.html";
 	        })
 	        .catch(error => {
@@ -232,4 +230,5 @@
 	    });
 	</script>
 </body>
+
 </html>
