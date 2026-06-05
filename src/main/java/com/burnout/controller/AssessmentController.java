@@ -13,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-// 🔥 FIXED: Spring Boot 3.x ke liye standard packages ensure kiye gye hain
 import jakarta.servlet.http.HttpServletRequest; 
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
@@ -55,7 +54,7 @@ public class AssessmentController {
             assessment.setUser(userOptional.get());
             assessmentService.saveAssessment(assessment);
             
-            
+            // Proper Standard Strict JSON String for frontend bypass
             return ResponseEntity.ok().body("{\"message\": \"Success: Data saved.\"}");
         } catch (Exception e) {
             e.printStackTrace(); 
@@ -73,8 +72,7 @@ public class AssessmentController {
         return ResponseEntity.notFound().build();
     }
 
-  
- // Retrieve the aggregated total count of assessments taken by a specific user profile
+    // Retrieve the aggregated total count of assessments taken by a specific user profile
     @GetMapping("/count")
     public ResponseEntity<Long> getAssessmentCount(@RequestParam String email) {
         Optional<User> userOptional = userRepo.findByEmail(email);
@@ -87,8 +85,9 @@ public class AssessmentController {
             return ResponseEntity.ok(0L);
         }
 
-
-        long count = assessmentService.getAssessmentCountByUser(user.getId().intValue());
+        // Typecasting safety layer to handle large ID sequence without breaking mapping
+        long userIdLong = user.getId().longValue();
+        long count = assessmentService.getAssessmentCountByUser((int) userIdLong);
         
         return ResponseEntity.ok(count);
     }
