@@ -173,8 +173,6 @@
 	        }
 
 	        let total = 0;
-	        
-	        // 🔥 FIXED: Keys ko lowercase 'score' kar diya hai taaki Jackson bypass ho sake
 	        let scores = { q1score: 0, q2score: 0, q3score: 0 };
 
 	        for (let i = 1; i <= globalQuestionsCount; i++) {
@@ -185,7 +183,7 @@
 	                total += elementScore;
 	                
 	                if (i <= 3) {
-	                    scores[`q${i}score`] = elementScore; // 🔥 FIXED: lowercase key injection
+	                    scores[`q${i}score`] = elementScore;
 	                }
 	            }
 	        }
@@ -209,17 +207,22 @@
 
 	        const queryParams = new URLSearchParams({ email: email });
 
+	        // 🔥 FIXED: Is pipeline ko bypass kar diya hai taaki response validation text/json dono par navigate kare
 	        fetch(`https://burnout-system-iwyd.onrender.com/api/assessment/submit?${queryParams.toString()}`, {
 	            method: "POST",
 	            headers: {
-	                "Content-Type": "application/json",
-	                "Accept": "application/json"
+	                "Content-Type": "application/json"
 	            },
 	            body: JSON.stringify(assessmentData)
 	        })
 	        .then(response => {
-	            if(!response.ok) throw new Error("Data stream reject.");
-	            window.location.href = "result.html";
+	            console.log("Server Response Status:", response.status);
+	            if(response.ok) {
+	                // Agar 200 OK hai toh chupchap navigate kar jao
+	                window.location.href = "result.html";
+	            } else {
+	                throw new Error("Server rejected data stream with status: " + response.status);
+	            }
 	        })
 	        .catch(error => {
 	            console.error("Network Transmission Error:", error);

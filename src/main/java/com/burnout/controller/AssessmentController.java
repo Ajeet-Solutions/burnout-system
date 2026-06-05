@@ -45,17 +45,21 @@ public class AssessmentController {
     }
 
     @PostMapping("/submit")
-    public ResponseEntity<String> submitTest(@RequestParam("email") String email, @RequestBody Assessment assessment) {
+    public ResponseEntity<?> submitTest(@RequestParam("email") String email, @RequestBody Assessment assessment) {
         try {
             Optional<User> userOptional = userRepo.findByEmail(email);
-            if (userOptional.isEmpty()) return ResponseEntity.badRequest().body("Error: User not found.");
+            if (userOptional.isEmpty()) {
+                return ResponseEntity.badRequest().body("{\"error\": \"Error: User not found.\"}");
+            }
             
             assessment.setUser(userOptional.get());
             assessmentService.saveAssessment(assessment);
-            return ResponseEntity.ok("Success: Data saved.");
+            
+            
+            return ResponseEntity.ok().body("{\"message\": \"Success: Data saved.\"}");
         } catch (Exception e) {
-            e.printStackTrace(); // Yeh Render ke logs mein error print karega
-            return ResponseEntity.internalServerError().body("DB_ERROR: " + e.getMessage());
+            e.printStackTrace(); 
+            return ResponseEntity.internalServerError().body("{\"error\": \"DB_ERROR: " + e.getMessage() + "\"}");
         }
     }
 
@@ -83,9 +87,7 @@ public class AssessmentController {
             return ResponseEntity.ok(0L);
         }
 
-        // 🔥 FIX: Agar aapki service 'int' maangti hai, toh .intValue() pass karo
-        // 🔥 Agar 'long' (primitive) maangti hai, toh .longValue() pass karo
-        // Hum yahan primitive value nikaal kar bhej rahe hain taaki mismatch khatam ho jaye
+
         long count = assessmentService.getAssessmentCountByUser(user.getId().intValue());
         
         return ResponseEntity.ok(count);
