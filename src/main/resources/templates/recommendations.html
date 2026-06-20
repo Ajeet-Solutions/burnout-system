@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BDOS - Wellness Action Recommendations</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .sidebar { background: #fff; border-right: 1px solid #dee2e6; min-height: 100vh; }
+        .user-avatar-container { width: 45px; height: 45px; border-radius: 50%; overflow: hidden; object-fit: cover; border: 2px solid #0d6efd; }
+        .sidebar-avatar { width: 80px; height: 80px; border-radius: 50%; overflow: hidden; object-fit: cover; margin-bottom: 15px; border: 3px solid #f1f5f9; }
+
+        /* Modern 3-Column Box Custom Utilities */
+        .recommendation-card { background: #ffffff !important; border: 1px solid #e2e8f0 !important; border-radius: 16px !important; }
+        .inner-box { border-radius: 12px !important; background-color: #f8fafc !important; border: 1px solid #e2e8f0 !important; transition: all 0.23s ease; }
+        .inner-box:hover { transform: translateY(-3px); box-shadow: 0 8px 15px rgba(15, 23, 42, 0.04); }
+        ul li { margin-bottom: 8px; }
+    </style>
+</head>
+<body class="bg-light">
+
+<div class="container-fluid">
+    <div class="row">
+        <nav class="col-md-3 col-lg-2 sidebar p-3 position-fixed d-none d-md-block text-center text-md-start">
+            <h4 class="fw-bold text-primary mb-4"><i class="fa-solid fa-heart-pulse me-2"></i>BDOS</h4>
+
+            <div class="text-center py-3 border-bottom mb-3" th:if="${isLoggedIn}">
+                <img id="sidebarAvatarImg"
+                     th:src="${currentUser.imageUrl != null ? currentUser.imageUrl : 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&q=80&w=150'}"
+                     alt="User Profile Dashboard Sidebar Avatar Layout" class="sidebar-avatar shadow-sm">
+                <h6 class="fw-bold mb-0 text-dark" th:text="${currentUser.name}">User Name</h6>
+                <small class="text-muted">User Portal Area</small>
+            </div>
+
+            <ul class="nav flex-column gap-2 text-start">
+                <li class="nav-item"><a class="nav-link text-dark" th:href="@{/}"><i class="fa-solid fa-house me-2"></i>Home Page</a></li>
+                <li class="nav-item"><a class="nav-link text-dark" th:href="@{/dashboard}"><i class="fa-solid fa-chart-pie me-2"></i>Dashboard</a></li>
+                <li class="nav-item"><a class="nav-link text-dark" th:href="@{/instructions}"><i class="fa-solid fa-play me-2"></i>Start Assessment</a></li>
+                <li class="nav-item"><a class="nav-link text-dark" th:href="@{/history}"><i class="fa-solid fa-clock-rotate-left me-2"></i>History</a></li>
+                <li class="nav-item"><a class="nav-link text-dark active" th:href="@{/recommendations}"><i class="fa-solid fa-hand-holding-heart me-2"></i>Recommendations</a></li>
+                <li class="nav-item"><a class="nav-link text-dark" th:href="@{/email-mock}"><i class="fa-solid fa-envelope me-2"></i>Email Report</a></li>
+                <hr>
+                <li class="nav-item"><a class="nav-link text-danger" th:href="@{/logout}"><i class="fa-solid fa-right-from-bracket me-2"></i>Logout</a></li>
+            </ul>
+        </nav>
+
+        <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 pt-4 offset-md-3 offset-lg-2">
+
+            <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+                <div class="d-flex align-items-center gap-3" th:if="${isLoggedIn}">
+                    <img id="headerAvatarImg"
+                         th:src="${currentUser.imageUrl != null ? currentUser.imageUrl : 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&q=80&w=150'}"
+                         alt="Header Avatar Image Structural Mapping Layout" class="user-avatar-container shadow-sm">
+                    <h2 class="fw-bold mb-0 text-dark">Tailored Recommendations </h2>
+                </div>
+                <a th:href="@{/dashboard}" class="btn btn-sm btn-outline-secondary bg-white shadow-sm rounded-pill px-3"><i class="fa-solid fa-arrow-left me-1"></i> Back to Dashboard</a>
+            </div>
+
+            <div class="card p-4 border-0 shadow-sm bg-white mb-4 recommendation-card">
+                <h5 class="fw-bold mb-1 text-dark">Your Wellness Status Overview</h5>
+                <p class="text-muted small">Actionable strategies mapped directly to your latest system evaluation score.</p>
+
+                <div class="alert alert-info border-0 mt-2 d-flex align-items-center gap-3 mb-0">
+                    <i class="fa-solid fa-circle-info fa-lg"></i>
+                    <div>
+                        Your latest recorded score is <strong th:text="${score} + ' / 15'">0 / 15</strong>
+                        categorized under: <span class="fw-bold text-uppercase" th:text="${condition}">None</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card p-4 border-0 shadow-sm recommendation-card border-top border-4 border-success" th:if="${#strings.contains(condition, 'Low')}">
+                <h5 class="fw-bold text-success mb-4"><i class="fa-solid fa-seedling me-2"></i>Maintenance Activities (Good Condition Plan)</h5>
+                <div class="row g-4">
+                    <div class="col-md-4">
+                        <div class="inner-box p-4 h-100">
+                            <h6 class="fw-bold text-primary mb-3"><i class="fa-solid fa-heartpulse me-2"></i>Physical Health</h6>
+                            <ul class="small text-muted ps-2 mt-2">
+                                <li>Continue practicing your present workout routine path.</li>
+                                <li>Maintain structured daily active walking blocks.</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="inner-box p-4 h-100">
+                            <h6 class="fw-bold text-success mb-3"><i class="fa-solid fa-brain me-2"></i>Mental Health</h6>
+                            <ul class="small text-muted ps-2 mt-2">
+                                <li>Dedicate 10 minutes to deep mindful quiet breathing daily.</li>
+                                <li>Practice relaxation breaks before morning busy work hours.</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="inner-box p-4 h-100">
+                            <h6 class="fw-bold text-warning mb-3"><i class="fa-solid fa-couch me-2"></i>Lifestyle Plan</h6>
+                            <ul class="small text-muted ps-2 mt-2">
+                                <li>Maintain clear distinction guidelines between job and family tasks.</li>
+                                <li>Keep a structured sleep pattern configuration.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card p-4 border-0 shadow-sm recommendation-card border-top border-4 border-warning" th:if="${#strings.contains(condition, 'Medium')}">
+                <h5 class="fw-bold text-warning mb-4"><i class="fa-solid fa-hourglass-half me-2"></i>Pacing Adjustments (Warning Condition Plan)</h5>
+                <div class="row g-4">
+                    <div class="col-md-4">
+                        <div class="inner-box p-4 h-100">
+                            <h6 class="fw-bold text-primary mb-3"><i class="fa-solid fa-heartpulse me-2"></i>Physical Health</h6>
+                            <ul class="small text-muted ps-2 mt-2">
+                                <li>Integrate 5-minute physical movement breaks for every hour spent sitting.</li>
+                                <li>Ensure timely nutritious meal setups during work.</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="inner-box p-4 h-100">
+                            <h6 class="fw-bold text-success mb-3"><i class="fa-solid fa-brain me-2"></i>Mental Health</h6>
+                            <ul class="small text-muted ps-2 mt-2">
+                                <li>Practice active stress relief breaks mid-day.</li>
+                                <li>Delegate non-essential task segments to reduce overhead pressure.</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="inner-box p-4 h-100">
+                            <h6 class="fw-bold text-warning mb-3"><i class="fa-solid fa-couch me-2"></i>Lifestyle Plan</h6>
+                            <ul class="small text-muted ps-2 mt-2">
+                                <li>Avoid work email reviews after standard operation timeline hours.</li>
+                                <li>Connect with close trusted peers to unwind.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card p-4 border-0 shadow-sm recommendation-card border-top border-4 border-danger bg-danger bg-opacity-10" th:if="${#strings.contains(condition, 'High')}">
+                <h5 class="fw-bold text-danger mb-2"><i class="fa-solid fa-triangle-exclamation me-2"></i>Urgent Intervention Required (Danger Zone Plan)</h5>
+                <p class="text-muted small mb-4">Your chronic fatigue indicators require immediate behavioral changes to protect system well-being indices.</p>
+                <div class="row g-4">
+                    <div class="col-md-4">
+                        <div class="inner-box p-4 h-100 bg-white">
+                            <h6 class="fw-bold text-primary mb-3"><i class="fa-solid fa-heartpulse me-2"></i>Physical Health</h6>
+                            <ul class="small text-muted ps-2 mt-2">
+                                <li>Completely disengage from terminal system screens during weekends.</li>
+                                <li>Focus strictly on active physical rest and recovery loops.</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="inner-box p-4 h-100 bg-white">
+                            <h6 class="fw-bold text-success mb-3"><i class="fa-solid fa-brain me-2"></i>Mental Health</h6>
+                            <ul class="small text-muted ps-2 mt-2">
+                                <li>Schedule professional counseling consultations with medical wellness mentors.</li>
+                                <li>Practice silent mindfulness to reduce severe fatigue.</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="inner-box p-4 h-100 bg-white">
+                            <h6 class="fw-bold text-warning mb-3"><i class="fa-solid fa-couch me-2"></i>Lifestyle Plan</h6>
+                            <ul class="small text-muted ps-2 mt-2">
+                                <li>Request short leaves or temporary break intervals from management immediately.</li>
+                                <li>Strictly lock down custom non-work digital screen configurations.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

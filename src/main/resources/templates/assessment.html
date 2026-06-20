@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BDOS - Assessment Running</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .question-step { display: none; }
+        .question-step.active { display: block; }
+        .option-label { cursor: pointer; transition: background 0.2s; }
+        .option-label:hover { background-color: #f8fafc !important; }
+    </style>
+</head>
+<body class="bg-light d-flex flex-column min-vh-100">
+
+<div th:replace="~{components/navbar :: nav}"></div>
+
+<div class="container py-5 flex-grow-1">
+    <div class="row justify-content-center">
+        <div class="col-md-8 col-lg-6">
+            <div class="card p-4 border-0 shadow-sm bg-white rounded-4">
+
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="text-muted small fw-bold" id="question-number-text">Question 1 of 5</span>
+                    <span class="text-primary small fw-bold" id="progress-percentage-text">20% Complete</span>
+                </div>
+                <div class="progress mb-4" style="height: 6px;">
+                    <div class="progress-bar" id="assessment-progress-bar" style="width: 20%; background: linear-gradient(135deg, #4f46e5, #7c3aed);"></div>
+                </div>
+
+                <form th:action="@{/assessment-submit}" method="POST" id="assessment-form">
+
+                    <div class="question-step active" id="step-1">
+                        <h5 class="fw-bold mb-4 text-dark lh-base">1. How often do you feel emotionally exhausted at the end of the day?</h5>
+                        <div class="d-flex flex-column gap-2 mb-4">
+                            <label class="border p-3 rounded-3 btn text-start d-flex justify-content-between align-items-center option-label">
+                                <span>Never</span><input type="radio" name="q1" value="0" required>
+                            </label>
+                            <label class="border p-3 rounded-3 btn text-start d-flex justify-content-between align-items-center option-label">
+                                <span>Sometimes</span><input type="radio" name="q1" value="1">
+                            </label>
+                            <label class="border p-3 rounded-3 btn text-start d-flex justify-content-between align-items-center option-label">
+                                <span>Often</span><input type="radio" name="q1" value="2" checked>
+                            </label>
+                            <label class="border p-3 rounded-3 btn text-start d-flex justify-content-between align-items-center option-label">
+                                <span>Always</span><input type="radio" name="q1" value="3">
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="question-step" id="step-2">
+                        <h5 class="fw-bold mb-4 text-dark lh-base">2. How often do you feel completely wiped out or lacking energy to work?</h5>
+                        <div class="d-flex flex-column gap-2 mb-4">
+                            <label class="border p-3 rounded-3 btn text-start d-flex justify-content-between align-items-center option-label">
+                                <span>Never</span><input type="radio" name="q2" value="0" required>
+                            </label>
+                            <label class="border p-3 rounded-3 btn text-start d-flex justify-content-between align-items-center option-label">
+                                <span>Sometimes</span><input type="radio" name="q2" value="1" checked>
+                            </label>
+                            <label class="border p-3 rounded-3 btn text-start d-flex justify-content-between align-items-center option-label">
+                                <span>Often</span><input type="radio" name="q2" value="2">
+                            </label>
+                            <label class="border p-3 rounded-3 btn text-start d-flex justify-content-between align-items-center option-label">
+                                <span>Always</span><input type="radio" name="q2" value="3">
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="question-step" id="step-3">
+                        <h5 class="fw-bold mb-4 text-dark lh-base">3. Do you find yourself becoming more cynical or less patient with tasks?</h5>
+                        <div class="d-flex flex-column gap-2 mb-4">
+                            <label class="border p-3 rounded-3 btn text-start d-flex justify-content-between align-items-center option-label">
+                                <span>Never</span><input type="radio" name="q3" value="0" required>
+                            </label>
+                            <label class="border p-3 rounded-3 btn text-start d-flex justify-content-between align-items-center option-label">
+                                <span>Sometimes</span><input type="radio" name="q3" value="1">
+                            </label>
+                            <label class="border p-3 rounded-3 btn text-start d-flex justify-content-between align-items-center option-label">
+                                <span>Often</span><input type="radio" name="q3" value="2" checked>
+                            </label>
+                            <label class="border p-3 rounded-3 btn text-start d-flex justify-content-between align-items-center option-label">
+                                <span>Always</span><input type="radio" name="q3" value="3">
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="question-step" id="step-4">
+                        <h5 class="fw-bold mb-4 text-dark lh-base">4. How often do you feel frustrated by your daily workload responsibilities?</h5>
+                        <div class="d-flex flex-column gap-2 mb-4">
+                            <label class="border p-3 rounded-3 btn text-start d-flex justify-content-between align-items-center option-label">
+                                <span>Never</span><input type="radio" name="q4" value="0" checked>
+                            </label>
+                            <label class="border p-3 rounded-3 btn text-start d-flex justify-content-between align-items-center option-label">
+                                <span>Sometimes</span><input type="radio" name="q4" value="1">
+                            </label>
+                            <label class="border p-3 rounded-3 btn text-start d-flex justify-content-between align-items-center option-label">
+                                <span>Often</span><input type="radio" name="q4" value="2">
+                            </label>
+                            <label class="border p-3 rounded-3 btn text-start d-flex justify-content-between align-items-center option-label">
+                                <span>Always</span><input type="radio" name="q4" value="3">
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="question-step" id="step-5">
+                        <h5 class="fw-bold mb-4 text-dark lh-base">5. Do you feel that you are not achieving effective results in your duties?</h5>
+                        <div class="d-flex flex-column gap-2 mb-4">
+                            <label class="border p-3 rounded-3 btn text-start d-flex justify-content-between align-items-center option-label">
+                                <span>Never</span><input type="radio" name="q5" value="0" required>
+                            </label>
+                            <label class="border p-3 rounded-3 btn text-start d-flex justify-content-between align-items-center option-label">
+                                <span>Sometimes</span><input type="radio" name="q5" value="1" checked>
+                            </label>
+                            <label class="border p-3 rounded-3 btn text-start d-flex justify-content-between align-items-center option-label">
+                                <span>Often</span><input type="radio" name="q5" value="2">
+                            </label>
+                            <label class="border p-3 rounded-3 btn text-start d-flex justify-content-between align-items-center option-label">
+                                <span>Always</span><input type="radio" name="q5" value="3">
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-between gap-3 mt-4">
+                        <button type="button" class="btn btn-outline-secondary px-4 py-2" id="prev-btn" disabled>Previous</button>
+                        <button type="button" class="btn btn-primary px-5 py-2" id="next-btn" style="background: linear-gradient(135deg, #4f46e5, #7c3aed); border: none;">Next Question</button>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        let currentStep = 1;
+        const totalSteps = 5;
+
+        const prevBtn = document.getElementById("prev-btn");
+        const nextBtn = document.getElementById("next-btn");
+        const form = document.getElementById("assessment-form");
+
+        const numText = document.getElementById("question-number-text");
+        const pctText = document.getElementById("progress-percentage-text");
+        const progressBar = document.getElementById("assessment-progress-bar");
+
+        function updateStepDisplay() {
+            document.querySelectorAll(".question-step").forEach(step => {
+                step.classList.remove("active");
+            });
+            document.getElementById("step-" + currentStep).classList.add("active");
+
+            let progressPercent = (currentStep / totalSteps) * 100;
+
+            // Thymeleaf conflict se bachne ke liye standard concatenation use kiya hai:
+            numText.innerText = "Question " + currentStep + " of " + totalSteps;
+            pctText.innerText = progressPercent + "% Complete";
+            progressBar.style.width = progressPercent + "%";
+
+            if (currentStep === 1) {
+                prevBtn.setAttribute("disabled", "true");
+            } else {
+                prevBtn.removeAttribute("disabled");
+            }
+
+            if (currentStep === totalSteps) {
+                nextBtn.innerText = "Submit Assessment";
+            } else {
+                nextBtn.innerText = "Next Question";
+            }
+        }
+
+        nextBtn.addEventListener("click", function () {
+            if (currentStep < totalSteps) {
+                currentStep++;
+                updateStepDisplay();
+            } else {
+                form.submit();
+            }
+        });
+
+        prevBtn.addEventListener("click", function () {
+            if (currentStep > 1) {
+                currentStep--;
+                updateStepDisplay();
+            }
+        });
+    });
+</script>
+</body>
+</html>

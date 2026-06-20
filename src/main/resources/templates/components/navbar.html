@@ -1,0 +1,88 @@
+<nav th:fragment="nav" class="navbar navbar-expand-lg bg-white sticky-top py-3" style="box-shadow: 0 4px 20px rgba(79, 70, 229, 0.08); border-bottom: 1px solid #e2e8f0;">
+    <div class="container">
+        <a class="navbar-brand fw-extrabold fs-3 d-flex align-items-center" th:href="@{/}"
+           style="background: linear-gradient(135deg, #4f46e5, #7c3aed); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-family: 'Segoe UI', sans-serif; letter-spacing: -0.5px;">
+
+            <span class="d-inline-flex align-items-center justify-content-center me-2 text-white fw-black shadow-sm"
+                  style="width: 36px; height: 36px; background: linear-gradient(135deg, #4f46e5, #7c3aed); border-radius: 8px; font-size: 1.25rem; font-family: 'Segoe UI', sans-serif; font-weight: 900; -webkit-text-fill-color: #ffffff !important;">
+                B
+            </span>
+
+            BDOS
+        </a>
+
+        <button class="navbar-toggler border-0 shadow-none" type="button" data-bs-toggle="collapse" data-bs-target="#bdosPremiumNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <div class="collapse navbar-collapse" id="bdosPremiumNav">
+            <ul class="navbar-nav mx-auto text-center small fw-bold gap-2">
+                <style>
+                    .custom-nav-link {
+                        color: #64748b !important;
+                        position: relative;
+                        transition: color 0.3s ease;
+                    }
+                    .custom-nav-link:hover {
+                        color: #4f46e5 !important;
+                    }
+                    .custom-nav-link::after {
+                        content: '';
+                        position: absolute;
+                        width: 0;
+                        height: 2px;
+                        bottom: 0;
+                        left: 50%;
+                        background-color: #4f46e5;
+                        transition: all 0.3s ease;
+                        transform: translateX(-50%);
+                    }
+                    .custom-nav-link:hover::after {
+                        width: 80%;
+                    }
+                    /* Special Button Hover Mechanics */
+                    .btn-premium-auth {
+                        background: linear-gradient(135deg, #4f46e5, #6366f1) !important;
+                        color: #ffffff !important;
+                        border: none !important;
+                        transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+                    }
+                    .btn-premium-auth:hover {
+                        transform: translateY(-2px);
+                        box-shadow: 0 8px 20px rgba(79, 70, 229, 0.35) !important;
+                        color: #ffffff !important;
+                    }
+                </style>
+                <li class="nav-item"><a class="nav-link px-3 custom-nav-link" th:href="@{/}"><i class="fa-solid fa-house me-1 small"></i> Home</a></li>
+                <li class="nav-item"><a class="nav-link px-3 custom-nav-link" href="#features"><i class="fa-solid fa-star me-1 small"></i> Features</a></li>
+                <li class="nav-item"><a class="nav-link px-3 custom-nav-link" th:href="@{/dashboard}"><i class="fa-solid fa-chart-pie me-1 small"></i> User Dashboard</a></li>
+                <li class="nav-item"><a class="nav-link px-3 custom-nav-link" th:href="@{/admin-dashboard}"><i class="fa-solid fa-user-shield me-1 small"></i> Admin Console</a></li>
+            </ul>
+
+            <div class="d-flex justify-content-center align-items-center gap-3 mt-3 mt-lg-0">
+
+                <th:block th:if="${isLoggedIn != true}">
+                    <a th:href="@{/login}" class="text-decoration-none fw-bold small" style="color: #64748b; transition: color 0.2s;" onmouseover="this.style.color='#4f46e5'" onmouseout="this.style.color='#64748b'">Sign In</a>
+                    <a th:href="@{/register}" class="btn btn-premium-auth px-4 py-2 small rounded-pill shadow-sm fw-bold">
+                        Get Started <i class="fa-solid fa-arrow-right ms-1 small"></i>
+                    </a>
+                </th:block>
+
+                <th:block th:if="${isLoggedIn == true}">
+                    <div class="d-flex align-items-center gap-2 border px-3 py-1.5 rounded-pill shadow-sm bg-light">
+
+                        <img th:src="${currentUser != null && currentUser.imageUrl != null && currentUser.imageUrl != '' ? currentUser.imageUrl : 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png'}"
+                             alt="Profile" class="rounded-circle shadow-sm" style="width: 32px; height: 32px; object-fit: cover; border: 2px solid #4f46e5;">
+
+                        <span class="fw-bold text-dark small" th:text="${currentUser != null ? currentUser.name : 'User'}">User Name</span>
+
+                        <a th:href="@{/logout}" class="btn btn-sm btn-outline-danger rounded-circle ms-2" title="Logout" style="width: 28px; height: 28px; padding: 0; display: inline-flex; align-items: center; justify-content: center;">
+                            <i class="fa-solid fa-power-off" style="font-size: 0.75rem;"></i>
+                        </a>
+                    </div>
+                </th:block>
+
+            </div>
+        </div>
+    </div>
+</nav>
