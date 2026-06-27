@@ -4,6 +4,7 @@ import com.bdos.burnout.model.User;
 import com.bdos.burnout.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.nio.file.*;
@@ -16,14 +17,18 @@ public class UserService {
 
     private final String UPLOAD_DIRECTORY = "C:/burnout/uploads/";
 
+    // Save newly registered user into the database
+    @Transactional
     public String saveUserToSystem(String name, String email, String rawPassword, String confirmPassword, MultipartFile profileImage) throws IOException {
 
+        String cleanedEmail = email.trim().toLowerCase();
+
         if (!rawPassword.equals(confirmPassword)) {
-            return "Error: Password aur Confirm Password match nahi ho rahe!";
+            return "Error: Password and Confirm Password do not match!";
         }
 
-        if (userRepository.existsByEmail(email)) {
-            return "Error: Email pehle se register hai!";
+        if (userRepository.existsByEmail(cleanedEmail)) {
+            return "Error: Email is already registered!";
         }
 
         String finalImageUrl = "/uploads/default.png";
@@ -39,28 +44,31 @@ public class UserService {
             finalImageUrl = "/uploads/" + uniqueFileName;
         }
 
-        String dummyHashedPassword = "SECURE_" + rawPassword + "_KEY";
+        String dummyHashedPassword = "SECURE_" + rawPassword.trim() + "_KEY";
 
-        User newUser = new User(name, email, dummyHashedPassword, finalImageUrl);
+        User newUser = new User(name, cleanedEmail, dummyHashedPassword, finalImageUrl);
         userRepository.save(newUser);
 
         return "Success";
     }
 
-    // SIMPLE ENGLISH MESSAGES WALA METHOD HERE:
+    // Authenticate user credentials during login process
+    @Transactional(readOnly = true)
     public boolean authenticateUser(String email, String rawPassword) {
         System.out.println("====== LOGIN DEBUG START ======");
-        System.out.println("Email from form: " + email);
+
+        String cleanedEmail = email.trim().toLowerCase();
+        System.out.println("Email from form: " + cleanedEmail);
         System.out.println("Password from form: " + rawPassword);
 
-        java.util.Optional<User> userOptional = userRepository.findByEmail(email);
+        java.util.Optional<User> userOptional = userRepository.findByEmail(cleanedEmail);
 
         if (userOptional.isPresent()) {
             User user = userOptional.get();
             System.out.println("Status: User FOUND in database!");
             System.out.println("Saved password in DB: " + user.getPassword());
 
-            String incomingHashedPassword = "SECURE_" + rawPassword + "_KEY";
+            String incomingHashedPassword = "SECURE_" + rawPassword.trim() + "_KEY";
             System.out.println("Hashed password from form: " + incomingHashedPassword);
 
             if (user.getPassword().equals(incomingHashedPassword)) {

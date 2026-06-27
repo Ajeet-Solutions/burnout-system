@@ -3,7 +3,10 @@ package com.bdos.burnout.controller;
 import com.bdos.burnout.model.Assessment;
 import com.bdos.burnout.repository.AssessmentRepository;
 import com.bdos.burnout.service.UserService;
-import com.bdos.burnout.service.EmailService; // Day 10 Imported Email Service
+import com.bdos.burnout.service.EmailService;
+import jakarta.servlet.http.Cookie; // Cookie clear karne ke liye import kiya
+import jakarta.servlet.http.HttpServletRequest; // Request track karne ke liye import kiya
+import jakarta.servlet.http.HttpServletResponse; // Response mein cookie bhejne ke liye import kiya
 import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -24,7 +27,6 @@ public class UserController {
     @Autowired
     private AssessmentRepository assessmentRepository;
 
-    //  Injected EmailService to send real-time mail notifications
     @Autowired
     private EmailService emailService;
 
@@ -69,13 +71,21 @@ public class UserController {
         }
     }
 
-    // Handle user logout and session validation
+    // ⭐ PROBLEM 4 FIXED: Handle user logout, session validation and Cookie clearing
     @GetMapping("/logout")
-    public String handleLogout(HttpSession session) {
+    public String handleLogout(HttpServletRequest request, HttpServletResponse response) {
+        HttpSession session = request.getSession(false);
         if (session != null) {
             session.invalidate();
             System.out.println("[Session Status] User logged out successfully.");
         }
+
+        // Browser ki purani login cookie ko poori tarah delete (clear) kiya
+        Cookie cookie = new Cookie("JSESSIONID", null);
+        cookie.setPath("/");
+        cookie.setMaxAge(0); // 0 seconds life yani turant khatam
+        response.addCookie(cookie);
+
         return "redirect:/login?logout";
     }
 
@@ -139,7 +149,6 @@ public class UserController {
             return "redirect:/assessment";
         }
 
-        // Get user identity from active session
         String userEmail = (String) session.getAttribute("loggedInUser");
 
         int score1 = Integer.parseInt((String) session.getAttribute("q1_score"));
@@ -168,21 +177,26 @@ public class UserController {
             advice = "Your burnout level is very high. Please stop working immediately, take a short vacation, or connect with a mentor.";
         }
 
-        // Persistence Layer Integration: Automatically save submission record to database
+        // Persistence Layer Integration
         try {
             Assessment currentTest = new Assessment(userEmail, totalScore, burnoutStatus, LocalDateTime.now());
             assessmentRepository.save(currentTest);
             System.out.println("[Database Status] Assessment record saved successfully for: " + userEmail);
 
-
-            //  Live Email Trigger: Sends report directly to Gmail
-            emailService.sendAssessmentReport(userEmail, totalScore, burnoutStatus);
+            // ⭐ PROBLEM 3 FIXED: Try-Catch safe wrapper block for Email
+            // Agar email authentication fail bhi ho, toh user ka page hang nahi hoga aur results turant dikhenge!
+            try {
+                emailService.sendAssessmentReport(userEmail, totalScore, burnoutStatus);
+                System.out.println("[Email Status] Request sent to email service.");
+            } catch (Exception mailEx) {
+                System.out.println("[HTML Email Error] Failed to send structured mail: " + mailEx.getMessage());
+            }
 
         } catch (Exception e) {
-            System.out.println("[Database Error] Could not save record or send email: " + e.getMessage());
+            System.out.println("[Database Error] Could not save record: " + e.getMessage());
         }
 
-        // Clear temporary assessment session attributes to avoid submission loop on page reload
+        // Clear temporary assessment session attributes
         session.removeAttribute("q1_score");
         session.removeAttribute("q2_score");
         session.removeAttribute("q3_score");
@@ -197,7 +211,6 @@ public class UserController {
         return "result";
     }
 
-    // Utility function to convert raw score string into viewable label text
     private String convertValueToText(String val) {
         if (val == null) return "Never";
         return switch (val) {

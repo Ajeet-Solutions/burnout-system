@@ -8,32 +8,33 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Controller
 public class AdminController {
 
-    // Handle Admin Login Form Submission
+    // Process admin login credentials
     @PostMapping("/admin-login")
     public String handleAdminLogin(
             @RequestParam("username") String username,
             @RequestParam("password") String password,
             HttpSession session) {
 
-        // Simple Check: If username is 'admin' and password is 'admin123'
-        if ("admin".equals(username) && "admin123".equals(password)) {
-            // Save admin token inside session storage
+        if (username != null && password != null &&
+                "admin".equals(username.trim()) && "admin123".equals(password.trim())) {
+
+            // Store admin identity in session
             session.setAttribute("loggedInAdmin", "admin");
-            // Redirect to admin dashboard portal
             return "redirect:/admin-dashboard";
         }
 
-        // If credentials are wrong, redirect back to login page with error
+        // Redirect with error status if credentials fail
         return "redirect:/admin-login?error=true";
     }
 
-    // Handle Admin Logout Action
+    // Process admin logout request
     @PostMapping("/admin-logout")
     public String handleAdminLogout(HttpSession session) {
-        // Destroy the admin session completely
-        session.removeAttribute("loggedInAdmin");
-        session.invalidate();
-        // Redirect back to admin login page
+        // Clear session data and invalidate
+        if (session != null) {
+            session.removeAttribute("loggedInAdmin");
+            session.invalidate();
+        }
         return "redirect:/admin-login";
     }
 }

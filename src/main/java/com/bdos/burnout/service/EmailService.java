@@ -17,69 +17,49 @@ public class EmailService {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
-            helper.setFrom("no-reply@bdos.com");
-            helper.setTo(toEmail);
-            helper.setSubject("BDOS - Your Personal Burnout Assessment Report");
+            String cleanTargetEmail = toEmail.trim();
 
-            // Dynamic Color Selection based on Burnout Status
-            String badgeColor = "#6c757d"; // Default gray
+            helper.setFrom("ajeet.singh896036@gmail.com", "BDOS Portal");
+            helper.setTo(cleanTargetEmail);
+            helper.setSubject("Your Burnout Assessment Report - Result");
+
+            // Simple styling to pass Gmail's spam filters easily
+            String statusColor = "#28a745"; // Default green
             String adviceText = "";
 
             if (status.contains("Low")) {
-                badgeColor = "#28a745"; // Success Green
+                statusColor = "#28a745";
                 adviceText = "Your stress level is perfectly under control. Maintain your current daily healthy routine.";
             } else if (status.contains("Medium")) {
-                badgeColor = "#ffc107"; // Warning Yellow
+                statusColor = "#ffc107";
                 adviceText = "Your workload is increasing. Please start taking short regular breaks during your work hours.";
             } else if (status.contains("High")) {
-                badgeColor = "#dc3545"; // Danger Red
+                statusColor = "#dc3545";
                 adviceText = "Your burnout level is very high. Please stop working immediately, take a short vacation, or connect with a mentor.";
             }
 
-            // Beautiful Professional HTML Template Design
-            String htmlBody = "<div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e0e0e0; border-radius: 10px; background-color: #fcfcfc;'>"
-                    + "  <div style='text-align: center; background: linear-gradient(135deg, #4A00E0, #8E2DE2); padding: 20px; border-radius: 8px 8px 0 0; color: white;'>"
-                    + "    <h2 style='margin: 0; font-size: 24px; letter-spacing: 1px;'>BDOS Wellness Portal</h2>"
-                    + "    <p style='margin: 5px 0 0 0; font-size: 14px; opacity: 0.9;'>Corporate Burnout Detection System</p>"
+            // Clean, simple, and safe HTML template (No dark gradients that cause blocking)
+            String htmlBody = "<div style='font-family: sans-serif; max-width: 550px; margin: 20px auto; padding: 20px; border: 1px solid #ddd; border-radius: 5px; color: #333;'>"
+                    + "  <h2 style='color: #4A00E0; border-bottom: 2px solid #4A00E0; padding-bottom: 10px;'>BDOS Mental Health Report</h2>"
+                    + "  <p>Hello,</p>"
+                    + "  <p>Thank you for completing your assessment test. Here is the processed result from your session:</p>"
+                    + "  "
+                    + "  <div style='background-color: #f8f9fa; padding: 15px; margin: 20px 0; border-left: 4px solid " + statusColor + ";'>"
+                    + "    <p style='margin: 5px 0;'><strong>Current Status:</strong> <span style='color: " + statusColor + "; font-weight: bold;'>" + status + "</span></p>"
+                    + "    <p style='margin: 5px 0;'><strong>Total Score:</strong> " + score + " / 15</p>"
                     + "  </div>"
-                    + "  <div style='padding: 20px; background-color: white; border-radius: 0 0 8px 8px;'>"
-                    + "    <p style='font-size: 16px; color: #333;'>Hello <strong>" + toEmail + "</strong>,</p>"
-                    + "    <p style='color: #555; line-height: 1.5;'>Thank you for taking the mental health assessment test. Based on your inputs, our system analytics layer has processed your score report.</p>"
-                    + "    <div style='margin: 25px 0; text-align: center; padding: 20px; background-color: #f8f9fa; border-radius: 8px; border-left: 5px solid " + badgeColor + ";'>"
-                    + "      <span style='font-size: 14px; text-transform: uppercase; color: #888; font-weight: bold; display: block; margin-bottom: 5px;'>Assessment Status</span>"
-                    + "      <span style='background-color: " + badgeColor + "; color: " + (badgeColor.equals("#ffc107") ? "#333" : "white") + "; padding: 8px 16px; font-size: 18px; font-weight: bold; border-radius: 20px; display: inline-block; margin-bottom: 15px;'>" + status + "</span>"
-                    + "      <div style='font-size: 28px; font-weight: bold; color: #333; margin-top: 5px;'>" + score + " <span style='font-size: 16px; color: #777;'>/ 15</span></div>"
-                    + "    </div>"
-                    + "    <table style='width: 100%; border-collapse: collapse; margin-top: 15px;'>"
-                    + "      <thead>"
-                    + "        <tr style='background-color: #f1f1f1; text-align: left;'>"
-                    + "          <th style='padding: 10px; border: 1px solid #ddd; font-size: 14px;'>Metric Parameter</th>"
-                    + "          <th style='padding: 10px; border: 1px solid #ddd; font-size: 14px;'>System Value</th>"
-                    + "        </tr>"
-                    + "      </thead>"
-                    + "      <tbody>"
-                    + "        <tr>"
-                    + "          <td style='padding: 10px; border: 1px solid #ddd; font-size: 14px; color: #555;'>User Identity ID</td>"
-                    + "          <td style='padding: 10px; border: 1px solid #ddd; font-size: 14px; font-weight: bold; color: #333;'>" + toEmail + "</td>"
-                    + "        </tr>"
-                    + "        <tr>"
-                    + "          <td style='padding: 10px; border: 1px solid #ddd; font-size: 14px; color: #555;'>Calculated Aggregate Score</td>"
-                    + "          <td style='padding: 10px; border: 1px solid #ddd; font-size: 14px; font-weight: bold; color: " + badgeColor + ";'>" + score + " out of 15</td>"
-                    + "        </tr>"
-                    + "      </tbody>"
-                    + "    </table>"
-                    + "    <div style='margin-top: 25px; padding: 15px; background-color: #f0f7ff; border-radius: 6px; border-left: 4px solid #0056b3;'>"
-                    + "      <h4 style='margin: 0 0 5px 0; color: #0056b3; font-size: 15px;'>🎯 System Recommendation Action:</h4>"
-                    + "      <p style='margin: 0; font-size: 14px; color: #333; line-height: 1.4;'>" + adviceText + "</p>"
-                    + "    </div>"
-                    + "    <hr style='border: 0; border-top: 1px solid #eee; margin: 30px 0;'>"
-                    + "    <p style='font-size: 12px; color: #999; text-align: center; margin: 0;'>This is an automated report generated securely by your organization's BDOS engine. Please do not reply directly to this mail.</p>"
-                    + "  </div>"
+                    + "  "
+                    + "  <p style='background-color: #f0f7ff; padding: 12px; border-radius: 4px; font-size: 14px;'><strong>Recommendation:</strong> " + adviceText + "</p>"
+                    + "  "
+                    + "  <hr style='border: 0; border-top: 1px solid #eee; margin-top: 30px;'>"
+                    + "  <p style='font-size: 11px; color: #777; text-align: center;'>This is an automated system email. Please do not reply.</p>"
                     + "</div>";
 
-            helper.setText(htmlBody, true); // true parameter sets content type as HTML
+            String plainTextFallback = "Your burnout score is " + score + " and status is: " + status;
+            helper.setText(plainTextFallback, htmlBody);
+
             mailSender.send(message);
-            System.out.println("[HTML Email Status] Success! Beautiful layout report sent to: " + toEmail);
+            System.out.println("[HTML Email Status] Success! Beautiful layout report sent to: " + cleanTargetEmail);
         } catch (Exception e) {
             System.out.println("[HTML Email Error] Failed to send structured mail: " + e.getMessage());
         }
