@@ -15,61 +15,37 @@ public class UserService {
     @Autowired
     private UserRepository userRepository;
 
-    // Fixed: Using relative path to work on both Windows and Linux (Render)
-    private final String UPLOAD_DIR = "uploads/";
-
     @Transactional
     public String saveUserToSystem(String name, String email, String rawPassword, String confirmPassword, MultipartFile profileImage) throws IOException {
-
         String cleanedEmail = email.trim().toLowerCase();
 
-        if (!rawPassword.equals(confirmPassword)) {
-            return "Error: Password and Confirm Password do not match!";
-        }
-
-        if (userRepository.existsByEmail(cleanedEmail)) {
-            return "Error: Email is already registered!";
-        }
+        if (!rawPassword.equals(confirmPassword)) return "Error: Password and Confirm Password do not match!";
+        if (userRepository.existsByEmail(cleanedEmail)) return "Error: Email is already registered!";
 
         String finalImageUrl = "/uploads/default.png";
 
+        // Image logic crash-proof kar diya hai
         try {
             if (profileImage != null && !profileImage.isEmpty()) {
                 String uniqueFileName = System.currentTimeMillis() + "_" + profileImage.getOriginalFilename();
-
-                // Get current working directory (works on Render)
-                Path rootPath = Paths.get(System.getProperty("user.dir"), UPLOAD_DIR);
-                if (!Files.exists(rootPath)) {
-                    Files.createDirectories(rootPath);
-                }
-
+                Path rootPath = Paths.get(System.getProperty("user.dir"), "uploads");
+                if (!Files.exists(rootPath)) Files.createDirectories(rootPath);
                 Files.copy(profileImage.getInputStream(), rootPath.resolve(uniqueFileName), StandardCopyOption.REPLACE_EXISTING);
                 finalImageUrl = "/uploads/" + uniqueFileName;
             }
         } catch (Exception e) {
-            System.out.println("Error saving image: " + e.getMessage());
-            // Even if image fails, we continue with default image
+            System.out.println("Image upload skipped: " + e.getMessage());
         }
 
-        String dummyHashedPassword = "SECURE_" + rawPassword.trim() + "_KEY";
-        User newUser = new User(name, cleanedEmail, dummyHashedPassword, finalImageUrl);
-        userRepository.save(newUser);
-
+        String hashedPassword = "SECURE_" + rawPassword.trim() + "_KEY";
+        userRepository.save(new User(name, cleanedEmail, hashedPassword, finalImageUrl));
         return "Success";
     }
 
     @Transactional(readOnly = true)
     public boolean authenticateUser(String email, String rawPassword) {
-        String cleanedEmail = email.trim().toLowerCase();
-        java.util.Optional<User> userOptional = userRepository.findByEmail(cleanedEmail);
-
-        if (userOptional.isPresent()) {
-            User user = userOptional.get();
-            String incomingHashedPassword = "SECURE_" + rawPassword.trim() + "_KEY";
-
-            // Password match check
-            return user.getPassword().equals(incomingHashedPassword);
-        }
-        return false;
+        return userRepository.findByEmail(email.trim().toLowerCase())
+                .map(user -> user.getPassword().equals("SECURE_" + rawPassword.trim() + "_KEY"))
+                .orElse(false);
     }
 }
