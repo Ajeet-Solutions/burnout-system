@@ -15,9 +15,9 @@ public class UserService {
     @Autowired
     private UserRepository userRepository;
 
-    private final String UPLOAD_DIRECTORY = "C:/burnout/uploads/";
+    // Fixed: Using relative path to work on both Windows and Linux (Render)
+    private final String UPLOAD_DIR = "uploads/";
 
-    // Save newly registered user into the database
     @Transactional
     public String saveUserToSystem(String name, String email, String rawPassword, String confirmPassword, MultipartFile profileImage) throws IOException {
 
@@ -32,56 +32,44 @@ public class UserService {
         }
 
         String finalImageUrl = "/uploads/default.png";
-        if (profileImage != null && !profileImage.isEmpty()) {
-            String uniqueFileName = System.currentTimeMillis() + "_" + profileImage.getOriginalFilename();
-            Path folderPath = Paths.get(UPLOAD_DIRECTORY);
 
-            if (!Files.exists(folderPath)) {
-                Files.createDirectories(folderPath);
+        try {
+            if (profileImage != null && !profileImage.isEmpty()) {
+                String uniqueFileName = System.currentTimeMillis() + "_" + profileImage.getOriginalFilename();
+
+                // Get current working directory (works on Render)
+                Path rootPath = Paths.get(System.getProperty("user.dir"), UPLOAD_DIR);
+                if (!Files.exists(rootPath)) {
+                    Files.createDirectories(rootPath);
+                }
+
+                Files.copy(profileImage.getInputStream(), rootPath.resolve(uniqueFileName), StandardCopyOption.REPLACE_EXISTING);
+                finalImageUrl = "/uploads/" + uniqueFileName;
             }
-
-            Files.copy(profileImage.getInputStream(), folderPath.resolve(uniqueFileName), StandardCopyOption.REPLACE_EXISTING);
-            finalImageUrl = "/uploads/" + uniqueFileName;
+        } catch (Exception e) {
+            System.out.println("Error saving image: " + e.getMessage());
+            // Even if image fails, we continue with default image
         }
 
         String dummyHashedPassword = "SECURE_" + rawPassword.trim() + "_KEY";
-
         User newUser = new User(name, cleanedEmail, dummyHashedPassword, finalImageUrl);
         userRepository.save(newUser);
 
         return "Success";
     }
 
-    // Authenticate user credentials during login process
     @Transactional(readOnly = true)
     public boolean authenticateUser(String email, String rawPassword) {
-        System.out.println("====== LOGIN DEBUG START ======");
-
         String cleanedEmail = email.trim().toLowerCase();
-        System.out.println("Email from form: " + cleanedEmail);
-        System.out.println("Password from form: " + rawPassword);
-
         java.util.Optional<User> userOptional = userRepository.findByEmail(cleanedEmail);
 
         if (userOptional.isPresent()) {
             User user = userOptional.get();
-            System.out.println("Status: User FOUND in database!");
-            System.out.println("Saved password in DB: " + user.getPassword());
-
             String incomingHashedPassword = "SECURE_" + rawPassword.trim() + "_KEY";
-            System.out.println("Hashed password from form: " + incomingHashedPassword);
 
-            if (user.getPassword().equals(incomingHashedPassword)) {
-                System.out.println("RESULT: Login Success! Password matched.");
-                System.out.println("====== LOGIN DEBUG END ======");
-                return true;
-            } else {
-                System.out.println("RESULT: Login Failed! Wrong password.");
-            }
-        } else {
-            System.out.println("RESULT: Login Failed! Email not found in database.");
+            // Password match check
+            return user.getPassword().equals(incomingHashedPassword);
         }
-        System.out.println("====== LOGIN DEBUG END ======");
         return false;
     }
 }
