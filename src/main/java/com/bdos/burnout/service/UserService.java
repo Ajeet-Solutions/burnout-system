@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
+import java.nio.file.*;
 
 @Service
 public class UserService {
@@ -14,27 +15,42 @@ public class UserService {
     @Autowired
     private UserRepository userRepository;
 
+    // Fixed: Using relative path to work on both Windows and Linux (Render)
+    private final String UPLOAD_DIR = "uploads/";
+
     @Transactional
     public String saveUserToSystem(String name, String email, String rawPassword, String confirmPassword, MultipartFile profileImage) throws IOException {
 
         String cleanedEmail = email.trim().toLowerCase();
 
-        // 1. Password validation
         if (!rawPassword.equals(confirmPassword)) {
             return "Error: Password and Confirm Password do not match!";
         }
 
-        // 2. Email check
         if (userRepository.existsByEmail(cleanedEmail)) {
             return "Error: Email is already registered!";
         }
 
-        // 3. Image Handling (Skip folder creation to avoid permission errors)
-        String finalImageUrl = "/images/default.png";
+        String finalImageUrl = "/uploads/default.png";
 
+        try {
+            if (profileImage != null && !profileImage.isEmpty()) {
+                String uniqueFileName = System.currentTimeMillis() + "_" + profileImage.getOriginalFilename();
 
+                // Get current working directory (works on Render)
+                Path rootPath = Paths.get(System.getProperty("user.dir"), UPLOAD_DIR);
+                if (!Files.exists(rootPath)) {
+                    Files.createDirectories(rootPath);
+                }
 
-        // 4. Save User
+                Files.copy(profileImage.getInputStream(), rootPath.resolve(uniqueFileName), StandardCopyOption.REPLACE_EXISTING);
+                finalImageUrl = "/uploads/" + uniqueFileName;
+            }
+        } catch (Exception e) {
+            System.out.println("Error saving image: " + e.getMessage());
+            // Even if image fails, we continue with default image
+        }
+
         String dummyHashedPassword = "SECURE_" + rawPassword.trim() + "_KEY";
         User newUser = new User(name, cleanedEmail, dummyHashedPassword, finalImageUrl);
         userRepository.save(newUser);
@@ -50,6 +66,8 @@ public class UserService {
         if (userOptional.isPresent()) {
             User user = userOptional.get();
             String incomingHashedPassword = "SECURE_" + rawPassword.trim() + "_KEY";
+
+            // Password match check
             return user.getPassword().equals(incomingHashedPassword);
         }
         return false;
